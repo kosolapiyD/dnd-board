@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+
+  --color-main-background  : #0d1117;
+  --color-column-background: #161c22;
+}
+
+html,
+body,
+#root {
+  @apply m-0 p-0 box-border bg-black text-white;
+}
