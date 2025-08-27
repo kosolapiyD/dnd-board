@@ -1,12 +1,18 @@
 import { useState } from 'react';
 import { PlusIcon } from '../assets/icons/plus-icon';
 import type { Column } from '../types';
+import { v4 as uuidv4 } from 'uuid';
 
 export const KanbanBoard = () => {
   const [columns, setColumns] = useState<Column[]>([]);
 
   const handleAddColumn = () => {
-    console.log('Add Column clicked');
+    const newColumn: Column = {
+      id: uuidv4(),
+      title: `Column ${columns.length + 1}`,
+    };
+
+    setColumns((prevColumns) => [...prevColumns, newColumn]);
   };
 
   return (
