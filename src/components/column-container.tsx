@@ -2,18 +2,26 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useState } from 'react';
 import { TrashIcon } from '../assets/icons/trash-icon';
-import type { Column } from '../types';
+import type { Column, Id, Task } from '../types';
+import { PlusIcon } from '../assets/icons/plus-icon';
+import { TaskCard } from './task-card';
 
 interface ColumnContainerProps {
   column: Column;
-  deleteColumn: (columnId: string) => void;
-  updateColumn: (columnId: string, title: string) => void;
+  deleteColumn: (columnId: Id) => void;
+  updateColumn: (columnId: Id, title: string) => void;
+  createTask: (columnId: Id) => void;
+  tasks: Task[];
+  deleteTask: (id: Id) => void;
 }
 
 export const ColumnContainer = ({
   column,
   deleteColumn,
   updateColumn,
+  createTask,
+  tasks,
+  deleteTask,
 }: ColumnContainerProps) => {
   const [editMode, setEditMode] = useState(false);
   const {
@@ -82,7 +90,7 @@ export const ColumnContainer = ({
           )}
         </div>
         <button
-          className='stroke-gray-500 hover:stroke-white hover:bg-column-background rounded px-1 py-2'
+          className='stroke-gray-500 hover:stroke-white hover:bg-column-background rounded px-1 py-2 cursor-pointer'
           onClick={() => deleteColumn(column.id)}
         >
           <TrashIcon />
@@ -90,9 +98,20 @@ export const ColumnContainer = ({
       </div>
 
       {/* column task container */}
-      <div className='flex-1 flex-grow'>CONTENT</div>
+      <div className='flex flex-1 flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto'>
+        {tasks.map((task) => (
+          <TaskCard key={task.id} task={task} deleteTask={deleteTask} />
+        ))}
+      </div>
       {/* column footer */}
-      <div className='p-2 border-t border-t-gray-200'>FOOTER</div>
+      <button
+        className='flex gap-2 items-center border-column-background border-2 rounded-md p-4 border-x-column-background hover:bg-main-background hover:text-rose-500 active:bg-black cursor-pointer'
+        onClick={() => {
+          createTask(column.id);
+        }}
+      >
+        <PlusIcon /> Add Task
+      </button>
     </div>
   );
 };
