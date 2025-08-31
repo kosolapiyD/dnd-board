@@ -3,9 +3,13 @@ import type { Column } from '../types';
 
 interface ColumnContainerProps {
   column: Column;
+  deleteColumn: (columnId: string) => void;
 }
 
-export const ColumnContainer = ({ column }: ColumnContainerProps) => {
+export const ColumnContainer = ({
+  column,
+  deleteColumn,
+}: ColumnContainerProps) => {
   return (
     <div className='bg-column-background w-[350px] h-[500px] max-h-[500px] rounded-md flex flex-col'>
       {/* column title */}
@@ -16,7 +20,10 @@ export const ColumnContainer = ({ column }: ColumnContainerProps) => {
           </div>
           {column.title}
         </div>
-        <button className='stroke-gray-500 hover:stroke-white hover:bg-column-background rounded px-1 py-2'>
+        <button
+          className='stroke-gray-500 hover:stroke-white hover:bg-column-background rounded px-1 py-2'
+          onClick={() => deleteColumn(column.id)}
+        >
           <TrashIcon />
         </button>
       </div>

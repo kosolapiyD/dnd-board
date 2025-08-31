@@ -8,13 +8,20 @@ export const KanbanBoard = () => {
   const [columns, setColumns] = useState<Column[]>([]);
   console.log('columns :>> ', columns);
 
-  const handleAddColumn = () => {
+  const addColumn = () => {
     const newColumn: Column = {
       id: uuidv4(),
+      // todo -> refactor the col title
       title: `Column ${columns.length + 1}`,
     };
 
     setColumns((prevColumns) => [...prevColumns, newColumn]);
+  };
+
+  const deleteColumn = (columnId: string) => {
+    setColumns((prevColumns) =>
+      prevColumns.filter((col) => col.id !== columnId)
+    );
   };
 
   return (
@@ -22,12 +29,16 @@ export const KanbanBoard = () => {
       <div className='m-auto flex gap-2'>
         <div className='flex gap-4'>
           {columns.map((column) => (
-            <ColumnContainer key={column.id} column={column} />
+            <ColumnContainer
+              key={column.id}
+              column={column}
+              deleteColumn={deleteColumn}
+            />
           ))}
         </div>
         <button
           className='h-[60px] w-[350px] min-w-[350px] cursor-pointer rounded-lg bg-main-background border-2 border-column-background p-4 ring-rose-500 hover:ring-2 flex gap-2'
-          onClick={() => handleAddColumn()}
+          onClick={() => addColumn()}
         >
           <PlusIcon /> Add Column
         </button>
