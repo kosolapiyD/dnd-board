@@ -74,6 +74,12 @@ export const KanbanBoard = () => {
     setActiveColumn(null);
   };
 
+  const updateColumn = (id: string, title: string) => {
+    setColumns((prevColumns) =>
+      prevColumns.map((col) => (col.id === id ? { ...col, title } : col))
+    );
+  };
+
   return (
     <div className='m-auto flex min-h-screen w-full items-center overflow-x-auto overflow-y-hidden px-[40px]'>
       <DndContext
@@ -89,6 +95,7 @@ export const KanbanBoard = () => {
                   key={column.id}
                   column={column}
                   deleteColumn={deleteColumn}
+                  updateColumn={updateColumn}
                 />
               ))}
             </SortableContext>
@@ -108,6 +115,7 @@ export const KanbanBoard = () => {
                 key={activeColumn.id}
                 column={activeColumn}
                 deleteColumn={deleteColumn}
+                updateColumn={updateColumn}
               />
             ) : null}
           </DragOverlay>,
