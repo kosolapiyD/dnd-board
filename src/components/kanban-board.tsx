@@ -6,6 +6,9 @@ import { ColumnContainer } from './column-container';
 import {
   DndContext,
   DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors,
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core';
@@ -17,6 +20,13 @@ export const KanbanBoard = () => {
   const columnsIds = useMemo(() => columns.map((col) => col.id), [columns]);
 
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 3, // 3px
+      },
+    })
+  );
 
   const addColumn = () => {
     const newColumn: Column = {
@@ -66,7 +76,11 @@ export const KanbanBoard = () => {
 
   return (
     <div className='m-auto flex min-h-screen w-full items-center overflow-x-auto overflow-y-hidden px-[40px]'>
-      <DndContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+      <DndContext
+        sensors={sensors}
+        onDragStart={onDragStart}
+        onDragEnd={onDragEnd}
+      >
         <div className='m-auto flex gap-2'>
           <div className='flex gap-4'>
             <SortableContext items={columnsIds}>
