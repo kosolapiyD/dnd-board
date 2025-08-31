@@ -12,19 +12,35 @@ export const ColumnContainer = ({
   column,
   deleteColumn,
 }: ColumnContainerProps) => {
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({
-      id: column.id,
-      data: {
-        type: 'Column',
-        column,
-      },
-    });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: column.id,
+    data: {
+      type: 'Column',
+      column,
+    },
+  });
 
   const style = {
     transition,
     transform: CSS.Transform.toString(transform),
   };
+
+  if (isDragging) {
+    return (
+      <div
+        className='bg-column-background opacity-40 border-2 border-rose-500 w-[350px] h-[500px] max-h-[500px] rounded-md flex flex-col'
+        ref={setNodeRef}
+        style={style}
+      ></div>
+    );
+  }
 
   return (
     <div
