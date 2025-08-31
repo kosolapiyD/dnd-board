@@ -29,6 +29,7 @@ export const ColumnContainer = ({
       type: 'Column',
       column,
     },
+    disabled: editMode,
   });
 
   const style = {
