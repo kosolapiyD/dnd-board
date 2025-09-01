@@ -13,6 +13,7 @@ interface ColumnContainerProps {
   createTask: (columnId: Id) => void;
   tasks: Task[];
   deleteTask: (id: Id) => void;
+  updateTaskContent: (id: Id, content: string) => void;
 }
 
 export const ColumnContainer = ({
@@ -22,6 +23,7 @@ export const ColumnContainer = ({
   createTask,
   tasks,
   deleteTask,
+  updateTaskContent,
 }: ColumnContainerProps) => {
   const [editMode, setEditMode] = useState(false);
   const {
@@ -100,7 +102,12 @@ export const ColumnContainer = ({
       {/* column task container */}
       <div className='flex flex-1 flex-grow flex-col gap-4 p-2 overflow-x-hidden overflow-y-auto'>
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} deleteTask={deleteTask} />
+          <TaskCard
+            key={task.id}
+            task={task}
+            deleteTask={deleteTask}
+            updateTaskContent={updateTaskContent}
+          />
         ))}
       </div>
       {/* column footer */}
