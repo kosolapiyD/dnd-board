@@ -1,8 +1,3 @@
-import { useMemo, useState } from 'react';
-import { PlusIcon } from '../assets/icons/plus-icon';
-import type { Column, Id, Task } from '../types';
-import { v4 as uuidv4 } from 'uuid';
-import { ColumnContainer } from './column-container';
 import {
   DndContext,
   DragOverlay,
@@ -13,7 +8,13 @@ import {
   type DragStartEvent,
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from '@dnd-kit/sortable';
+import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { v4 as uuidv4 } from 'uuid';
+import { PlusIcon } from '../assets/icons/plus-icon';
+import type { Column, Id, Task } from '../types';
+import { ColumnContainer } from './column-container';
+import { TaskCard } from './task-card';
 
 export const KanbanBoard = () => {
   const [columns, setColumns] = useState<Column[]>([]);
@@ -22,6 +23,8 @@ export const KanbanBoard = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const [activeColumn, setActiveColumn] = useState<Column | null>(null);
+  const [activeTask, setActiveTask] = useState<Task | null>(null);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -44,11 +47,20 @@ export const KanbanBoard = () => {
     setColumns((prevColumns) =>
       prevColumns.filter((col) => col.id !== columnId)
     );
+
+    setTasks((prevTasks) =>
+      prevTasks.filter((task) => task.columnId !== columnId)
+    );
   };
 
   const onDragStart = (ev: DragStartEvent) => {
     if (ev.active.data.current?.type === 'Column') {
       setActiveColumn(ev.active.data.current.column);
+      return;
+    }
+
+    if (ev.active.data.current?.type === 'Task') {
+      setActiveTask(ev.active.data.current.task);
       return;
     }
   };
@@ -74,6 +86,55 @@ export const KanbanBoard = () => {
     });
 
     setActiveColumn(null);
+    setActiveTask(null);
+  };
+
+  const onDragOver = (ev: DragEndEvent) => {
+    const { active, over } = ev;
+    if (!over) return;
+
+    const activeColumnId = active.id;
+    const overColumnId = over.id;
+
+    if (activeColumnId === overColumnId) return;
+
+    const isActiveATask = active.data.current?.type === 'Task';
+    const isOverATask = over.data.current?.type === 'Task';
+
+    if (!isActiveATask) return;
+
+    // handle dropping the task into the same column, dropping above another task
+    if (isActiveATask && isOverATask) {
+      setTasks((prevTasks) => {
+        const activeIndex = prevTasks.findIndex(
+          (task) => task.id === activeColumnId
+        );
+        const overIndex = prevTasks.findIndex(
+          (task) => task.id === overColumnId
+        );
+
+        // todo check this
+        tasks[activeIndex].columnId = tasks[overIndex].columnId;
+
+        return arrayMove(prevTasks, activeIndex, overIndex);
+      });
+    }
+
+    // handle dropping the task into another column
+    const isOverAColumn = over.data.current?.type === 'Column';
+
+    if (isActiveATask && isOverAColumn) {
+      setTasks((prevTasks) => {
+        const activeIndex = prevTasks.findIndex(
+          (task) => task.id === activeColumnId
+        );
+
+        // todo check this
+        tasks[activeIndex].columnId = overColumnId as string;
+
+        return arrayMove(prevTasks, activeIndex, activeIndex);
+      });
+    }
   };
 
   const updateColumn = (id: Id, title: string) => {
@@ -108,6 +169,7 @@ export const KanbanBoard = () => {
         sensors={sensors}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
+        onDragOver={onDragOver}
       >
         <div className='m-auto flex gap-2'>
           <div className='flex gap-4'>
@@ -150,6 +212,14 @@ export const KanbanBoard = () => {
                 )}
               />
             ) : null}
+            {activeTask && (
+              <TaskCard
+                key={activeTask.id}
+                task={activeTask}
+                deleteTask={deleteTask}
+                updateTaskContent={updateTaskContent}
+              />
+            )}
           </DragOverlay>,
           document.body
         )}
